@@ -1,0 +1,21 @@
+# Bytecode de Python y caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Diapositivas y material de clase del profesor
+CLASES/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Archivos de configuración de editores
+.vscode/
+.idea/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store

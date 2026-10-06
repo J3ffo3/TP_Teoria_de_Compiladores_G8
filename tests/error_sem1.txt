@@ -1,0 +1,2 @@
+// Error Semántico 1: Variable no declarada
+x := 10;

@@ -1,0 +1,12 @@
+// Error Semántico 6: Violación de Propiedad Estocástica
+// Desde el estado Sunny, las probabilidades suman 0.8 + 0.5 = 1.3 (debe sumar 1.0)
+
+chain Invalida do {
+    state Sunny;
+    state Rainy;
+
+    transition Sunny -> Sunny (0.8);
+    transition Sunny -> Rainy (0.5);
+    transition Rainy -> Sunny (0.4);
+    transition Rainy -> Rainy (0.6);
+}

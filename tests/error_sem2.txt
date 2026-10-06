@@ -1,0 +1,3 @@
+// Error Semántico 2: Variable ya declarada en el mismo ámbito
+var x : int;
+var x : float;

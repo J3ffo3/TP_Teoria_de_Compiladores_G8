@@ -1,0 +1,12 @@
+// Error Semántico 7: Estado de destino no declarado en la cadena
+// El estado 'Snowy' no fue declarado previamente con 'state Snowy;'
+
+chain Clima do {
+    state Sunny;
+    state Rainy;
+
+    transition Sunny -> Snowy (0.5);
+    transition Sunny -> Rainy (0.5);
+    transition Rainy -> Sunny (0.4);
+    transition Rainy -> Rainy (0.6);
+}

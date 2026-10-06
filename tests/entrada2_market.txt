@@ -1,0 +1,31 @@
+// ========================================================
+// MarkovLang - Caso de Prueba Válido 2
+// Modelo Financiero de Mercado (Bull, Bear, Stagnant)
+// ========================================================
+
+seed 1234;
+
+chain Market do {
+    state Bull;
+    state Bear;
+    state Stagnant;
+
+    // Transiciones desde Bull (Alza) -> Suma = 1.0
+    transition Bull -> Bull (0.90);
+    transition Bull -> Bear (0.075);
+    transition Bull -> Stagnant (0.025);
+
+    // Transiciones desde Bear (Baja) -> Suma = 1.0
+    transition Bear -> Bull (0.15);
+    transition Bear -> Bear (0.80);
+    transition Bear -> Stagnant (0.05);
+
+    // Transiciones desde Stagnant (Estancado) -> Suma = 1.0
+    transition Stagnant -> Bull (0.25);
+    transition Stagnant -> Bear (0.25);
+    transition Stagnant -> Stagnant (0.50);
+}
+
+// Simulación y cálculo estacionario
+simulate(Market, Bull, 50);
+stationary(Market);

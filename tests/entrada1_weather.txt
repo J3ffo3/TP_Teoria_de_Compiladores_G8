@@ -1,0 +1,28 @@
+// ========================================================
+// MarkovLang - Caso de Prueba Válido 1
+// Modelo Clásico de Clima (Weather Model)
+// ========================================================
+
+seed 42;
+
+var pasos : int;
+pasos := 20;
+
+chain Weather do {
+    state Sunny;
+    state Rainy;
+
+    // Matriz de transición:
+    // P(Sunny -> Sunny) = 0.8, P(Sunny -> Rainy) = 0.2 (Suma = 1.0)
+    // P(Rainy -> Sunny) = 0.4, P(Rainy -> Rainy) = 0.6 (Suma = 1.0)
+    transition Sunny -> Sunny (0.8);
+    transition Sunny -> Rainy (0.2);
+    transition Rainy -> Sunny (0.4);
+    transition Rainy -> Rainy (0.6);
+}
+
+// Simulación Monte Carlo por 20 pasos iniciando en Sunny
+simulate(Weather, Sunny, pasos);
+
+// Cálculo de la distribución estacionaria pi
+stationary(Weather);

@@ -1,0 +1,4 @@
+// Error Semántico 4: Detección de uso de variables no inicializadas (Guía Semana 6)
+var a : int;
+var b : int;
+b := a + 5;

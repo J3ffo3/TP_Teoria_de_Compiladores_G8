@@ -1,0 +1,25 @@
+// ========================================================
+// MarkovLang - Caso de Prueba Válido 3
+// Demostración de estructuras de control y tipos
+// ========================================================
+
+var contador : int;
+var umbral : float;
+var convergencia : bool;
+var modelo : string;
+
+contador := 0;
+umbral := 0.001;
+convergencia := true;
+modelo := "Cadena de Markov Estocastica";
+
+print(modelo);
+
+while contador < 5 do {
+    if contador MOD 2 == 0 then {
+        print("Iteracion par");
+    } else {
+        print("Iteracion impar");
+    }
+    contador := contador + 1;
+}
