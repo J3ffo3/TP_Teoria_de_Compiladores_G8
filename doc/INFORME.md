@@ -6,127 +6,131 @@
 ### Datos del Proyecto
 * **Curso:** Teoría de Compiladores (Ciclo 2026-2)
 * **Docente:** Prof. José Luis Soncco Álvarez
-* **Hito:** Hito 1 - Trabajo Parcial (Semana 7)
-* **Carrera:** Ciencias de la Computación (6to Ciclo)
-* **Competencias Evaluadas:** ABET 3 (Comunicación Efectiva) y Pensamiento Crítico
+* **Grupo:** Grupo 8
+* **Hito de Entrega:** Hito 1 - Trabajo Parcial (Semana 7)
+* **Carrera:** Ciencia de la Computación
 
 ---
 
 ## 1. Problemática y Motivación
 
-En ciencias de la computación, física estadística, bioinformática e inteligencia artificial, las **Cadenas de Markov de Tiempo Discreto (DTMC)** son el modelo formal estándar para estudiar sistemas estocásticos basados en la propiedad de Markov (la probabilidad del estado futuro depende exclusivamente del estado presente).
+Las Cadenas de Markov de Tiempo Discreto (DTMC) son un modelo matemático utilizado para describir procesos estocásticos donde la probabilidad de transición al siguiente estado depende exclusivamente del estado presente. Aunque su aplicación es frecuente en áreas como simulación de colas, análisis de confiabilidad, modelos meteorológicos y economía, **no existe en la actualidad un lenguaje de dominio específico (DSL) enfocado directamente en su definición y validación estática**.
 
-### ¿Por qué es importante? ¿Existe y es un proceso largo?
-Actualmente **no existe un lenguaje de programación de dominio específico (DSL) dedicado a Cadenas de Markov**. Para desarrollar modelos de Markov en lenguajes de propósito general o de bajo nivel como C, C++ o Java, el ingeniero o investigador se enfrenta a un proceso largo, manual y propenso a errores:
-1. **Mapeo manual de abstracciones a bajo nivel:** Es necesario asociar identificadores conceptuales (como `Sunny`, `Rainy`, `Bear`, `Bull`) a índices numéricos de matriz (`0, 1, 2...`), perdiendo semántica.
-2. **Carencia de análisis semántico estático:** Los lenguajes tradicionales no validan en tiempo de compilación que las probabilidades salientes de un estado sumen exactamente $1.0$ (propiedad estocástica). Si el programador comete un error aritmético o se olvida de una transición, el programa compilará sin advertencias y fallará silenciosamente durante la simulación o cálculo de probabilidades.
-3. **Complejidad de implementación repetitiva:** Programar manualmente simulaciones de Monte Carlo (generación de números pseudoaleatorios y búsqueda en la función de distribución acumulada CDF) o la potenciación matricial para la distribución estacionaria $\pi = \pi P$ es repetitivo y verboso.
+### 1.1 Limitaciones del Flujo Tradicional
+Cuando un programador implementa cadenas de Markov en lenguajes de propósito general o de bajo nivel como C o C++, el proceso resulta repetitivo y propenso a errores:
+1. **Pérdida de abstracción semántica:** Los estados conceptuales del sistema (por ejemplo `Sunny`, `Rainy`, `Bull`, `Bear`) deben mapearse manualmente a números enteros (`0, 1, ...`) como índices de una matriz bidimensional, dificultando la lectura y mantenimiento del código.
+2. **Ausencia de validación estocástica estática:** Los compiladores tradicionales no pueden validar que la suma de probabilidades salientes de cada fila sea estrictamente igual a $1.0$. Si el usuario comete un error tipográfico en un valor decimal o descuida una transición, el programa compila con éxito pero genera resultados matemáticamente inconsistentes en tiempo de ejecución.
+3. **Reimplementación de algoritmos de simulación:** Tareas comunes como la simulación de Monte Carlo mediante la función de distribución acumulada (CDF) o el cálculo de la distribución estacionaria requieren escribir código repetitivo de manejo de matrices y generadores de números aleatorios.
 
-### Justificación de Compilación hacia un Lenguaje de Bajo Nivel
-La razón de ser de **MarkovLang** es proveer un lenguaje de alto nivel declarativo con **verificación estática de tipos y de axiomas de probabilidad**, que al compilarse se **simplifique y traduzca a código de bajo nivel en C**. El compilador automatiza la construcción de enumeraciones, matrices estáticas planas (`float P[N][N]`) y algoritmos optimizados de simulación estocástica en C puro.
+### 1.2 Justificación de Compilación a Bajo Nivel (C)
+Para resolver esta problemática, **MarkovLang** introduce una sintaxis declarativa concisa que permite al usuario definir estados y transiciones directamente por su nombre simbólico. El compilador se encarga de dos tareas fundamentales:
+* **Verificación estática estricta:** Comprueba en tiempo de compilación tanto las reglas habituales del lenguaje (tipado, declaración e inicialización de variables) como los axiomas probabilísticos (propiedad estocástica).
+* **Compilación a C:** Simplifica y traduce el modelo de alto nivel a un programa ejecutable en **C puro**, generando automáticamente tipos enumerados (`enum`), matrices estáticas de adyacencia (`float P[N][N]`), rutinas optimizadas de simulación Monte Carlo y algoritmos de potenciación matricial.
 
 ---
 
 ## 2. Objetivos
 
-### Objetivo General
-Diseñar e implementar el front-end y backend inicial del compilador **MarkovLang** en Python 3 utilizando la herramienta **ANTLR4**, siguiendo la metodología y buenas prácticas de ingeniería de compiladores vistas en las Semanas 1 a 7 del curso.
+### 2.1 Objetivo General
+Diseñar e implementar el analizador léxico, sintáctico, semántico y generador de código inicial del lenguaje **MarkovLang** utilizando **ANTLR4** y Python 3, aplicando los conceptos de gramáticas libres de contexto, tablas de símbolos y derivaciones formales desarrollados en la Unidad 1 del curso.
 
-### Objetivos Específicos
-1. Formalizar la gramática libre de contexto `MarkovLang.g4` eliminando ambigüedades mediante estratificación de reglas (Semana 5 y 6).
-2. Construir una tabla léxica formal de tokens y expresiones regulares.
-3. Demostrar la corrección de las reglas mediante derivaciones más a la izquierda ($\Rightarrow_{lm}$) siguiendo la notación formal del curso.
-4. Implementar un analizador semántico basado en el patrón *Visitor* con tabla de símbolos de ámbitos estáticos (`_scope_stack`), detectando variables no declaradas, no inicializadas, división por cero con constantes y la **violación de la propiedad estocástica**.
-5. Traducir el código validado a un programa ejecutable en **C de bajo nivel**.
+### 2.2 Objetivos Específicos
+1. Formalizar la gramática libre de contexto de MarkovLang, resolviendo ambigüedades en expresiones aritméticas y estructuras de control mediante una jerarquía estratificada.
+2. Construir la especificación léxica formal definiendo los tokens y expresiones regulares correspondientes.
+3. Validar las producciones sintácticas mediante derivaciones más a la izquierda ($\Rightarrow_{lm}$) siguiendo la convención formal vista en clase.
+4. Implementar un analizador semántico basado en el patrón *Visitor* con tabla de símbolos de ámbitos estáticos (`_scope_stack`), detectando errores de tipado, uso de variables no inicializadas, división entre cero con constantes y violación de la propiedad estocástica.
+5. Diseñar el backend que traduzca el AST validado a código ejecutable en C.
 
 ---
 
 ## 3. Descripción de Construcciones del Lenguaje
 
-A continuación se describen las construcciones del lenguaje con **5 ejemplos por cada una**:
+El lenguaje incluye construcciones clásicas de programación estructurada junto con primitivas dedicadas al modelado probabilístico. A continuación se detallan 5 ejemplos de cada construcción:
 
 ### 3.1 Declaración de Variables
-Utiliza la convención `var <id> : <tipo>;` vista en clase.
-* **Ejemplo 1:** `var pasos : int;`
-* **Ejemplo 2:** `var umbral : float;`
-* **Ejemplo 3:** `var convergencia : bool;`
-* **Ejemplo 4:** `var modelo : string;`
-* **Ejemplo 5:** `var estado_actual : state;`
+Sigue la sintaxis `var <identificador> : <tipo>;` utilizada en los ejemplos del curso.
+* `var pasos : int;`
+* `var umbral : float;`
+* `var convergencia : bool;`
+* `var etiqueta : string;`
+* `var estado_actual : state;`
 
 ### 3.2 Sentencias de Asignación
-Asignación destructiva fuertemente tipada con el operador `:=`.
-* **Ejemplo 1:** `pasos := 20;`
-* **Ejemplo 2:** `umbral := 0.001;`
-* **Ejemplo 3:** `convergencia := true;`
-* **Ejemplo 4:** `modelo := "Modelo Climatico";`
-* **Ejemplo 5:** `pasos := pasos + 5;`
+Utiliza el operador de asignación destructiva `:=` y valida compatibilidad de tipos.
+* `pasos := 50;`
+* `umbral := 0.05;`
+* `convergencia := true;`
+* `etiqueta := "Modelo de Mercado";`
+* `pasos := pasos + 10;`
 
 ### 3.3 Expresiones Aritméticas y Lógicas
-Estratificadas según precedencia formal (relacional, aditiva, multiplicativa y factores).
-* **Ejemplo 1:** `x + y * 2`
-* **Ejemplo 2:** `(iteraciones - 10) / (4 - 1)`
-* **Ejemplo 3:** `contador < 10`
-* **Ejemplo 4:** `contador MOD 2 == 0`
-* **Ejemplo 5:** `prob >= 0.0 and prob <= 1.0`
+Soportan operadores relacionales, sumas, restas, productos, divisiones (`/`, `DIV`, `MOD`) y agrupación por paréntesis respetando precedencia.
+* `x + y * 2`
+* `(pasos - 5) / (2 + 1)`
+* `iteraciones < 100`
+* `contador MOD 2 == 0`
+* `probabilidad >= 0.0`
 
 ### 3.4 Sentencias Selectivas (`if-then-else`)
-Bifurcaciones condicionadas a expresiones booleanas.
-* **Ejemplo 1:** `if convergencia then { print("Convergencia alcanzada"); }`
-* **Ejemplo 2:** `if contador MOD 2 == 0 then { print("Par"); } else { print("Impar"); }`
-* **Ejemplo 3:** `if pasos > 100 then { print("Simulacion larga"); }`
-* **Ejemplo 4:** `if umbral < 0.01 then { convergencia := true; }`
-* **Ejemplo 5:** `if contador == 0 then { print("Inicio"); }`
+Permiten bifurcaciones condicionales basadas en expresiones booleanas.
+* `if convergencia then { print("Simulacion completa"); }`
+* `if pasos > 10 then { pasos := pasos - 1; } else { pasos := 0; }`
+* `if contador MOD 2 == 0 then { print("Par"); } else { print("Impar"); }`
+* `if umbral < 0.01 then { convergencia := true; }`
+* `if activo then { contador := contador + 1; }`
 
 ### 3.5 Sentencias Iterativas (`while-do`)
-Bucles convencionales de evaluación condicional.
-* **Ejemplo 1:** `while contador < 5 do { contador := contador + 1; }`
-* **Ejemplo 2:** `while umbral > 0.0001 do { umbral := umbral / 2.0; }`
-* **Ejemplo 3:** `while activo do { print("Ejecutando..."); }`
-* **Ejemplo 4:** `while pasos > 0 do { pasos := pasos - 1; }`
-* **Ejemplo 5:** `while contador < 10 do { print(contador); contador := contador + 1; }`
+Ejecutan un bloque de instrucciones de manera repetitiva mientras se cumpla la condición.
+* `while contador < 5 do { contador := contador + 1; }`
+* `while umbral > 0.001 do { umbral := umbral / 2.0; }`
+* `while activo do { print("Ejecutando paso"); }`
+* `while pasos > 0 do { pasos := pasos - 1; }`
+* `while i < 10 do { print(i); i := i + 1; }`
 
-### 3.6 Construcciones del Dominio de Cadenas de Markov
-Primitivas para declarar cadenas, estados, transiciones y simulaciones.
-* **Ejemplo 1:** `chain Weather do { state Sunny; state Rainy; }`
-* **Ejemplo 2:** `transition Sunny -> Rainy (0.2);`
-* **Ejemplo 3:** `transition Rainy -> Sunny (0.4);`
-* **Ejemplo 4:** `simulate(Weather, Sunny, 20);`
-* **Ejemplo 5:** `stationary(Weather);`
+### 3.6 Primitivas de Cadenas de Markov
+Instrucciones específicas para declarar la cadena, definir sus estados y transiciones, e invocar operaciones de simulación o cálculo estacionario.
+* `chain Clima do { state Soleado; state Lluvioso; }`
+* `transition Soleado -> Lluvioso (0.3);`
+* `transition Lluvioso -> Soleado (0.5);`
+* `simulate(Clima, Soleado, 50);`
+* `stationary(Clima);`
 
 ---
 
 ## 4. Analizador Léxico
 
-Especificación de componentes léxicos en formato `Token : Patrón / Lista de Lexemas`:
+La siguiente tabla resume los componentes léxicos implementados en ANTLR4:
 
 | Token | Categoría | Lexemas / Expresión Regular |
 | :--- | :--- | :--- |
-| `VAR` | Palabra Clave | `'var'` |
-| `SEED` | Configuración Global | `'seed'` |
-| `CHAIN`, `STATE`, `TRANSITION` | Dominio Markov | `'chain'`, `'state'`, `'transition'` |
-| `SIMULATE`, `STATIONARY` | Operaciones de Dominio | `'simulate'`, `'stationary'` |
-| `IF`, `THEN`, `ELSE`, `WHILE`, `DO` | Control de Flujo | `'if'`, `'then'`, `'else'`, `'while'`, `'do'` |
-| `PRINT` | Entrada/Salida | `'print'` |
-| `INT_TYPE`, `FLOAT_TYPE`, `BOOL_TYPE`, `STRING_TYPE`, `STATE_TYPE` | Tipos de Datos | `'int'`, `'float'`, `'bool'`, `'string'`, `'state'` |
-| `TRUE`, `FALSE` | Booleanos | `'true'`, `'false'` |
-| `RELOP` | Operadores Relacionales | `'==' \| '!=' \| '<=' \| '>=' \| '<' \| '>'` |
-| `ADDOP` | Operadores Aditivos | `'+' \| '-'` |
-| `MULOP` | Operadores Multiplicativos | `'*' \| '/' \| 'MOD' \| 'DIV'` |
-| `ASSIGN` | Operador Asignación | `':='` |
-| `ARROW` | Operador de Transición | `'->'` |
-| `COLON`, `SEMI`, `COMMA` | Delimitadores | `':'`, `';'`, `','` |
-| `LPAREN`, `RPAREN`, `LBRACE`, `RBRACE` | Agrupación | `'('`, `')'`, `'{'`, `'}'` |
-| `FLOAT_LIT` | Literal Decimal | `[0-9]+ '.' [0-9]+` |
-| `INT_LIT` | Literal Entero | `[0-9]+` |
-| `STRING_LIT` | Cadena | `'"' ~["\r\n]* '"'` |
+| `VAR` | Palabra reservada | `'var'` |
+| `SEED` | Configuración | `'seed'` |
+| `CHAIN`, `STATE`, `TRANSITION` | Palabras de dominio | `'chain'`, `'state'`, `'transition'` |
+| `SIMULATE`, `STATIONARY` | Operaciones de dominio | `'simulate'`, `'stationary'` |
+| `IF`, `THEN`, `ELSE`, `WHILE`, `DO` | Control de flujo | `'if'`, `'then'`, `'else'`, `'while'`, `'do'` |
+| `PRINT` | Salida estándar | `'print'` |
+| `INT_TYPE`, `FLOAT_TYPE`, `BOOL_TYPE`, `STRING_TYPE`, `STATE_TYPE` | Tipos de datos | `'int'`, `'float'`, `'bool'`, `'string'`, `'state'` |
+| `TRUE`, `FALSE` | Constantes booleanas | `'true'`, `'false'` |
+| `RELOP` | Operadores relacionales | `'==' \| '!=' \| '<=' \| '>=' \| '<' \| '>'` |
+| `ADDOP` | Operadores aditivos | `'+' \| '-'` |
+| `MULOP` | Operadores multiplicativos | `'*' \| '/' \| 'MOD' \| 'DIV'` |
+| `ASSIGN` | Asignación | `':='` |
+| `ARROW` | Operador de transición | `'->'` |
+| `COLON`, `SEMI`, `COMMA` | Signos de puntuación | `':'`, `';'`, `','` |
+| `LPAREN`, `RPAREN`, `LBRACE`, `RBRACE` | Delimitadores | `'('`, `')'`, `'{'`, `'}'` |
+| `FLOAT_LIT` | Constante flotante | `[0-9]+ '.' [0-9]+` |
+| `INT_LIT` | Constante entera | `[0-9]+` |
+| `STRING_LIT` | Cadena literal | `'"' ~["\r\n]* '"'` |
 | `ID` | Identificador | `[a-zA-Z_][a-zA-Z0-9_]*` |
-| `WS`, `LINE_COMMENT`, `BLOCK_COMMENT` | Ignorados | `-> skip` |
+| `WS`, `LINE_COMMENT`, `BLOCK_COMMENT` | Espacios y comentarios | `-> skip` |
 
 ---
 
 ## 5. Analizador Sintáctico y Derivaciones
 
-### 5.1 Gramática Libre de Contexto Formal
+### 5.1 Gramática Libre de Contexto
+A continuación se presenta la gramática formal en notación BNF simplificada:
+
 ```
 program        ::= globalConfig* statement* EOF
 globalConfig   ::= seedStmt
@@ -156,69 +160,88 @@ multiplicativeExpr ::= multiplicativeExpr MULOP factor | factor
 factor         ::= INT_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | ID | LPAREN expression RPAREN
 ```
 
-### 5.2 Derivación Más a la Izquierda Representativa
-Para la transición probabilística: `transition Sunny -> Rainy (0.2);`
+### 5.2 Derivaciones Más a la Izquierda Representativas
+Siguiendo la convención formal explicada en clase (no-terminales en itálica, terminales en negrita y sustitución del no-terminal situado más a la izquierda):
+
+#### Derivación 1: Declaración de variable (`var pasos : int;`)
 $$\begin{aligned}
-chainBody &\Rightarrow_{lm} transitionStmt \\
-&\Rightarrow_{lm} \textbf{transition} \; \textbf{id} \; \textbf{->} \; \textbf{id} \; \textbf{(} \; expression \; \textbf{)} \; \textbf{;} \\
+varDecl &\Rightarrow_{lm} \textbf{var} \; \textbf{id} \; \textbf{:} \; typeSpec \; \textbf{;} \\
+&\Rightarrow_{lm} \textbf{var} \; pasos \; \textbf{:} \; typeSpec \; \textbf{;} \\
+&\Rightarrow_{lm} \textbf{var} \; pasos \; \textbf{:} \; \textbf{int} \; \textbf{;}
+\end{aligned}$$
+
+#### Derivación 2: Asignación con expresión (`pasos := 20;`)
+$$\begin{aligned}
+assignment &\Rightarrow_{lm} \textbf{id} \; \textbf{:=} \; expression \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; expression \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; relationalExpr \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; additiveExpr \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; multiplicativeExpr \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; factor \; \textbf{;} \\
+&\Rightarrow_{lm} pasos \; \textbf{:=} \; 20 \; \textbf{;}
+\end{aligned}$$
+
+#### Derivación 3: Transición probabilística (`transition Sunny -> Rainy (0.2);`)
+$$\begin{aligned}
+transitionStmt &\Rightarrow_{lm} \textbf{transition} \; \textbf{id} \; \textbf{->} \; \textbf{id} \; \textbf{(} \; expression \; \textbf{)} \; \textbf{;} \\
 &\Rightarrow_{lm} \textbf{transition} \; Sunny \; \textbf{->} \; \textbf{id} \; \textbf{(} \; expression \; \textbf{)} \; \textbf{;} \\
 &\Rightarrow_{lm} \textbf{transition} \; Sunny \; \textbf{->} \; Rainy \; \textbf{(} \; expression \; \textbf{)} \; \textbf{;} \\
 &\Rightarrow_{lm} \textbf{transition} \; Sunny \; \textbf{->} \; Rainy \; \textbf{(} \; 0.2 \; \textbf{)} \; \textbf{;}
 \end{aligned}$$
-*(El compendio completo de 16 derivaciones detalladas se encuentra en el anexo formal `doc/DERIVACIONES.md`)*.
+
+#### Derivación 4: Simulación estocástica (`simulate(Clima, Soleado, 10);`)
+$$\begin{aligned}
+simulateStmt &\Rightarrow_{lm} \textbf{simulate} \; \textbf{(} \; \textbf{id} \; \textbf{,} \; \textbf{id} \; \textbf{,} \; expression \; \textbf{)} \; \textbf{;} \\
+&\Rightarrow_{lm} \textbf{simulate} \; \textbf{(} \; Clima \; \textbf{,} \; \textbf{id} \; \textbf{,} \; expression \; \textbf{)} \; \textbf{;} \\
+&\Rightarrow_{lm} \textbf{simulate} \; \textbf{(} \; Clima \; \textbf{,} \; Soleado \; \textbf{,} \; expression \; \textbf{)} \; \textbf{;} \\
+&\Rightarrow_{lm} \textbf{simulate} \; \textbf{(} \; Clima \; \textbf{,} \; Soleado \; \textbf{,} \; 10 \; \textbf{)} \; \textbf{;}
+\end{aligned}$$
+
+*(Para la lista exhaustiva de 16 derivaciones formales, véase el anexo `doc/DERIVACIONES.md`)*.
 
 ---
 
-## 6. Tratamiento Formal de Errores (Tarea 4 de Clase)
+## 6. Analizador Semántico y Manejo de Errores
 
-Siguiendo la Diapositiva 12 de la Unidad II:
+El analizador semántico recorre el árbol de sintaxis mediante un `SemanticVisitor` y utiliza una tabla de símbolos con gestión de ámbitos anidados (`_scope_stack`). Se implementaron las siguientes verificaciones:
 
-### 6.1 Errores Léxicos (5 ejemplos)
-1. Carácter inválido no perteneciente al alfabeto: `@` o `$`.
-2. Identificador iniciado con dígito: `9cadena`.
-3. Cadena no delimitada antes del fin de línea: `"modelo sin comillas`.
-4. Operador de flecha mal formado: `-->` o `=>`.
-5. Literal flotante mal formado: `0..5`.
+### 6.1 Errores Generales del Lenguaje
+1. **Variable no declarada:** Ocurre al emplear un identificador que no fue registrado previamente en el ámbito actual o en los ámbitos padres.
+2. **Variable redeclarada:** Se genera si se intenta declarar dos veces el mismo identificador dentro del mismo bloque.
+3. **Incompatibilidad de tipos:** Ocurre cuando el tipo evaluado de una expresión no coincide ni es promocionable al tipo de la variable destino en una asignación.
+4. **Variable no inicializada:** Se detecta cuando se lee una variable cuyo flag `initialized` se encuentra en falso.
+5. **División entre cero:** Se evalúa en tiempo de compilación si el operando derecho de los operadores `/`, `DIV` o `MOD` es un literal numérico igual a $0$.
 
-### 6.2 Errores Sintácticos (5 ejemplos)
-1. Omisión de punto y coma en sentencia (`var x : int`).
-2. Llaves desbalanceadas en el bloque de la cadena (`chain Weather do { state Sunny;`).
-3. Estructura condicional sin palabra clave `then` (`if x == 0 { }`).
-4. Estructura iterativa sin palabra clave `do` (`while x < 5 { }`).
-5. Paréntesis no balanceados en llamada a simulación (`simulate(Weather, Sunny, 10;`).
-
-### 6.3 Errores Semánticos Formalizados (7 errores implementados)
-1. **Variable no declarada:** Uso de una variable en asignación o expresión sin previo `var`.
-2. **Variable ya declarada en el mismo ámbito:** Declaración duplicada capturada por `SymbolTable.declare()`.
-3. **Incompatibilidad de tipos en asignación:** Intentar asignar tipos incompatibles (ej. `string` a `int`).
-4. **Uso de variable no inicializada:** Validación de la Guía de Semana 6 (`initialized == False`).
-5. **División por cero con constante:** Operador `/`, `DIV` o `MOD` con operando derecho literal igual a $0$.
-6. **Violación de la propiedad estocástica:** La suma de probabilidades de salida de un estado difiere de $1.0$ ($\sum_{j} P(s \to j) \neq 1.0$).
-7. **Estado no declarado en la cadena:** Transición que referencia un estado inexistente (`transition Sunny -> Snowy` donde `Snowy` no fue declarado).
+### 6.2 Errores Semánticos del Dominio (Cadenas de Markov)
+6. **Violación de la propiedad estocástica:** Al concluir la definición de una cadena, el compilador suma las probabilidades salientes de cada estado $\sum_{j} P(s_i \to s_j)$. Si la suma difiere de $1.0$ (con tolerancia $\varepsilon = 10^{-4}$ para precisión en punto flotante), se emite un error indicando el estado exacto donde falló la condición.
+7. **Estado no declarado:** Si una sentencia `transition` o `simulate` hace referencia a un estado que no fue definido mediante `state <nombre>;` dentro de la cadena, se emite un error de referencia inexistente.
 
 ---
 
-## 7. Resultados de Validación Experimental
+## 7. Resultados de Pruebas
 
-| Archivo de Prueba | Categoría | Resultado Esperado | Resultado Obtenido |
+A continuación se muestra el resultado de evaluar los casos de prueba incluidos en la carpeta `tests/`:
+
+| Archivo | Tipo de Caso | Comportamiento Esperado | Resultado |
 | :--- | :--- | :--- | :--- |
-| `tests/entrada1_weather.txt` | Válido (Clima) | Compilación exitosa y código C generado | **Pasa** (OK, C generado en `output/`) |
-| `tests/entrada2_market.txt` | Válido (Mercado) | Compilación exitosa y código C generado | **Pasa** (OK, C generado en `output/`) |
-| `tests/entrada3.txt` | Válido (Control) | Compilación exitosa | **Pasa** (OK) |
-| `tests/error_sem1.txt` | Error Semántico | Variable no declarada | **Pasa** (`[Línea 2] Variable 'x' no declarada`) |
-| `tests/error_sem2.txt` | Error Semántico | Variable ya declarada en ámbito | **Pasa** (`[Línea 3] Variable 'x' ya declarada`) |
-| `tests/error_sem3.txt` | Error Semántico | Incompatibilidad de tipos | **Pasa** (`[Línea 3] No se puede asignar 'string' a 'int'`) |
-| `tests/error_sem4.txt` | Error Semántico | Variable no inicializada | **Pasa** (`[Línea 4] Variable 'a' usada sin inicializar`) |
-| `tests/error_sem5.txt` | Error Semántico | División por cero constante | **Pasa** (`[Línea 3] División por cero con constante`) |
-| `tests/error_sem6.txt` | Error Semántico | Violación de propiedad estocástica | **Pasa** (`[Línea 4] Probabilidades suman 1.3 != 1.0`) |
-| `tests/error_sem7.txt` | Error Semántico | Estado no declarado | **Pasa** (`[Línea 8] Estado 'Snowy' no declarado`) |
-| `tests/error_sin1.txt` | Error Sintáctico | Falta punto y coma | **Pasa** (`line 3:0 missing ';' at 'x'. Abortando.`) |
-| `tests/warning1.txt` | Advertencia | Variable nunca usada | **Pasa** (`ADVERTENCIA: 'y' declarada nunca fue usada.`) |
+| `tests/entrada1_weather.txt` | Válido (Clima) | Pasa análisis y genera archivo C | Exitoso (`output/entrada1_weather.c`) |
+| `tests/entrada2_market.txt` | Válido (Mercado) | Pasa análisis y genera archivo C | Exitoso (`output/entrada2_market.c`) |
+| `tests/entrada3.txt` | Válido (Control) | Pasa análisis sintáctico y semántico | Exitoso |
+| `tests/error_sem1.txt` | Semántico | Detecta variable no declarada | Exitoso (`[Línea 2] Variable 'x' no declarada`) |
+| `tests/error_sem2.txt` | Semántico | Detecta variable duplicada | Exitoso (`[Línea 3] Variable 'x' ya declarada`) |
+| `tests/error_sem3.txt` | Semántico | Detecta incompatibilidad de tipos | Exitoso (`[Línea 3] No se puede asignar 'string' a 'int'`) |
+| `tests/error_sem4.txt` | Semántico | Detecta variable no inicializada | Exitoso (`[Línea 4] Variable 'a' sin inicializar`) |
+| `tests/error_sem5.txt` | Semántico | Detecta división por cero constante | Exitoso (`[Línea 3] División por cero constante`) |
+| `tests/error_sem6.txt` | Semántico (Dominio) | Detecta suma de probabilidades != 1.0 | Exitoso (`[Línea 4] Probabilidades suman 1.3 != 1.0`) |
+| `tests/error_sem7.txt` | Semántico (Dominio) | Detecta estado inexistente | Exitoso (`[Línea 8] Estado 'Snowy' no declarado`) |
+| `tests/error_sin1.txt` | Sintáctico | Error de sintaxis por falta de ';' | Exitoso (`missing ';' at 'x'`) |
+| `tests/warning1.txt` | Advertencia | Detecta variable declarada y no usada | Exitoso (`Advertencia: 'y' no utilizada`) |
 
 ---
 
 ## 8. Conclusiones
-1. **MarkovLang** resuelve una carencia real en el modelado estocástico: provee una sintaxis declarativa limpia y realiza verificación estática de la propiedad estocástica en tiempo de compilación.
-2. Cumple con la exigencia fundamental de compiladores al **simplificarse y traducirse a un lenguaje de más bajo nivel (C)**, generando matrices estáticas y bucles eficientes de Monte Carlo.
-3. El analizador semántico sigue estrictamente las pautas pedagógicas del curso, implementando la tabla de símbolos con ámbitos estáticos y los ejercicios de la Semana 6.
-4. El compilador queda formalmente preparado para los Hitos 2 y 3, donde la generación de C evolucionará hacia **LLVM IR**.
+
+1. **MarkovLang** ofrece una alternativa práctica y formal para especificar Cadenas de Markov de manera declarativa, eliminando la necesidad de codificar manualmente índices matriciales.
+2. La incorporación de la validación estática de la **propiedad estocástica** previene errores de modelado antes de la ejecución, garantizando consistencia probabilística.
+3. El compilador cumple el requisito de **reducción a un lenguaje de menor nivel**, traduciendo las definiciones a C puro con arreglos bidimensionales estáticos y rutinas de simulación estocástica.
+4. La estructura modular desarrollada sienta las bases para los siguientes hitos, permitiendo extender la generación de código hacia **LLVM IR** y soportar cadenas en tiempo continuo.

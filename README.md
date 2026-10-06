@@ -1,49 +1,46 @@
-# MarkovLang Compiler
+# MarkovLang
 
 **Curso:** Teoría de Compiladores (Ciclo 2026-2)  
 **Docente:** Prof. José Luis Soncco Álvarez  
-**Hito:** Hito 1 - Trabajo Parcial (Semana 7)  
-**Especialidad:** Ciencias de la Computación (6to Ciclo)  
+**Grupo:** Grupo 8  
+**Entrega:** Trabajo Parcial (Hito 1 - Semana 7)  
 
-MarkovLang es un Lenguaje de Dominio Específico (DSL) para el modelado, verificación estática y compilación de **Cadenas de Markov de Tiempo Discreto (DTMC)**. El front-end del compilador ha sido construido en Python 3 utilizando **ANTLR4**, implementando la arquitectura modular de clases (Unidad 1, semanas 1 a 7). El compilador realiza comprobaciones semánticas estrictas (incluyendo la **propiedad estocástica**) y se simplifica compilando hacia **código de bajo nivel en C**.
+MarkovLang es un lenguaje de dominio específico (DSL) diseñado para el modelado, verificación estática y compilación de **Cadenas de Markov de Tiempo Discreto (DTMC)**. El compilador valida reglas semánticas y estocásticas en tiempo de compilación y traduce las cadenas a **código ejecutable en C de bajo nivel** (matrices de adyacencia estáticas, simulaciones de Monte Carlo y cálculo de distribuciones estacionarias).
 
 ---
 
-## Estructura del Repositorio
+## Estructura del Proyecto
 
 ```text
 TP1/
 ├── MarkovLang.g4             # Gramática formal del lenguaje (ANTLR4)
-├── Makefile                  # Compilación automatizada de la gramática a gen/
-├── build.bat                 # Script de compilación rápida para Windows
-├── compile_grammar.py        # Compilador multiplataforma de ANTLR4
+├── Makefile                  # Automatización de generación de código ANTLR4
+├── build.bat                 # Script de compilación para Windows
+├── compile_grammar.py        # Script auxiliar de compilación ANTLR4
 ├── main.py                   # Driver principal del compilador
-├── codegen.py                # Generador de código de bajo nivel en C
-├── gen/                      # Código generado por ANTLR4 (Lexer, Parser, Visitor)
-├── semantic/                 # Módulo de análisis semántico
-│   ├── errors.py             # Clase SemanticError con formato "[Error Semántico, línea X]"
-│   ├── symbol_table.py       # Tabla de símbolos con pila de ámbitos estáticos
-│   └── semantic_visitor.py   # SemanticVisitor con validaciones de tipos y estocásticas
-├── tests/                    # Suite de casos de prueba
-│   ├── entrada1_weather.txt  # Modelo climático clásico (Sunny, Rainy) + Simulación Monte Carlo
-│   ├── entrada2_market.txt   # Modelo financiero de mercado (Bull, Bear, Stagnant)
-│   ├── entrada3.txt          # Construcciones de control, expresiones e I/O
+├── codegen.py                # Generador de código C
+├── gen/                      # Archivos generados por ANTLR4 (Lexer, Parser, Visitor)
+├── semantic/                 # Analizador semántico y tabla de símbolos
+│   ├── errors.py             # Clase SemanticError
+│   ├── symbol_table.py       # Tabla de símbolos con soporte de ámbitos
+│   └── semantic_visitor.py   # Visitor semántico (tipos, variables, propiedad estocástica)
+├── tests/                    # Casos de prueba
+│   ├── entrada1_weather.txt  # Modelo climático + simulación Monte Carlo
+│   ├── entrada2_market.txt   # Modelo de mercado financiero + distribución estacionaria
+│   ├── entrada3.txt          # Estructuras de control y expresiones
 │   ├── error_sem1.txt        # Variable no declarada
-│   ├── error_sem2.txt        # Variable ya declarada en el mismo ámbito
-│   ├── error_sem3.txt        # Incompatibilidad de tipos en asignación
-│   ├── error_sem4.txt        # Variable no inicializada (Guía Semana 6)
-│   ├── error_sem5.txt        # División por cero con constante (Guía Semana 6)
-│   ├── error_sem6.txt        # Violación de propiedad estocástica (probabilidades != 1.0)
+│   ├── error_sem2.txt        # Variable redeclarada en el mismo ámbito
+│   ├── error_sem3.txt        # Incompatibilidad de tipos
+│   ├── error_sem4.txt        # Variable usada sin inicializar
+│   ├── error_sem5.txt        # División entre cero con constante
+│   ├── error_sem6.txt        # Violación de propiedad estocástica (suma != 1.0)
 │   ├── error_sem7.txt        # Estado no declarado en la cadena
-│   ├── error_sin1.txt        # Error sintáctico (falta punto y coma)
-│   └── warning1.txt          # Advertencia: variable declarada pero nunca usada
-├── output/                   # Código de bajo nivel generado (*.c)
-├── doc/                      # Documentación del Trabajo Parcial
-│   ├── INFORME.md            # Informe técnico de 5 páginas para el Trabajo Parcial
-│   ├── DERIVACIONES.md       # Derivaciones más a la izquierda paso a paso
-│   ├── GUION_VIDEO.md        # Guion para el video demostrativo de 5 minutos
-│   ├── DIAPOSITIVAS.md       # Estructura para la presentación en diapositivas (PDF)
-│   └── BANCO_PREGUNTAS_DEFENSA.md # Preguntas teóricas clave para la sustentación
+│   ├── error_sin1.txt        # Error de sintaxis (falta ';')
+│   └── warning1.txt          # Advertencia de variable no utilizada
+├── output/                   # Archivos C generados
+├── doc/                      # Documentación del trabajo
+│   ├── INFORME.md            # Informe técnico del Trabajo Parcial
+│   └── DERIVACIONES.md       # Derivaciones formales más a la izquierda
 └── README.md
 ```
 
@@ -51,26 +48,24 @@ TP1/
 
 ## Requisitos e Instalación
 
-1. **Python 3.10+**:
-   Instalar el runtime oficial de ANTLR4:
+1. **Python 3.10+** con el runtime de ANTLR4:
    ```bash
    pip install antlr4-python3-runtime==4.13.2
    ```
 
-2. **Java Runtime (JDK 11+)**:
-   Requerido para generar el código del parser desde el archivo `.g4`.
+2. **Java Runtime (JDK 11+)** para compilar la gramática `.g4`.
 
 ---
 
 ## Compilación de la Gramática
 
-Para compilar `MarkovLang.g4` hacia la carpeta `gen/`:
+Para regenerar los archivos en `gen/` a partir de `MarkovLang.g4`:
 
-* **En Linux / macOS / WSL:**
+* **Linux / macOS:**
   ```bash
   make
   ```
-* **En Windows (PowerShell / CMD):**
+* **Windows (PowerShell / CMD):**
   ```cmd
   .\build.bat
   ```
@@ -81,64 +76,67 @@ Para compilar `MarkovLang.g4` hacia la carpeta `gen/`:
 
 ---
 
-## Ejecución del Compilador (`main.py`)
+## Uso del Compilador
 
-El driver analiza el archivo fuente, ejecuta el chequeo semántico, reporta errores o advertencias y genera el archivo de código en C de bajo nivel en `output/`:
+El archivo `main.py` recibe el archivo de código fuente y opcionalmente flags de depuración:
 
 ```bash
-python main.py <ruta_archivo.txt> [opciones]
+python main.py <archivo.txt> [--tokens] [--tree]
 ```
 
 ### Opciones:
-* `--tokens`: Imprime la lista de tokens reconocidos por el lexer.
-* `--tree`: Muestra la representación textual del Parse Tree.
+* `--tokens`: Muestra la lista de tokens generada por el analizador léxico.
+* `--tree`: Muestra el árbol de análisis sintáctico (Parse Tree) en formato texto.
 
 ---
 
-## Ejemplos de Prueba
+## Ejemplos de Ejecución
 
-### 1. Compilar modelo de clima y generar código C:
+### 1. Compilación válida y generación de código C:
 ```bash
 python main.py tests/entrada1_weather.txt
 ```
-*Salida:*
+Salida:
 ```text
 Análisis semántico: OK
 
 [Compilación a Bajo Nivel] Código C generado en: output\entrada1_weather.c
 ```
 
-### 2. Probar error semántico de dominio (Violación de propiedad estocástica):
+Para compilar y ejecutar el C generado:
+```bash
+gcc output/entrada1_weather.c -o weather.exe
+./weather.exe
+```
+
+### 2. Detección de error semántico (Propiedad estocástica):
 ```bash
 python main.py tests/error_sem6.txt
 ```
-*Salida:*
+Salida:
 ```text
 === ERRORES SEMÁNTICOS ===
   [Error Semántico, línea 4] Violación de propiedad estocástica en estado 'Sunny': las probabilidades salientes suman 1.3 (deben sumar exactamente 1.0)
 ```
 
-### 3. Probar error semántico de estado no declarado:
-```bash
-python main.py tests/error_sem7.txt
-```
-*Salida:*
-```text
-=== ERRORES SEMÁNTICOS ===
-  [Error Semántico, línea 8] Estado de destino 'Snowy' no declarado en la cadena 'Clima'
-```
-
-### 4. Probar detección de variable no inicializada (Guía Semana 6):
+### 3. Detección de variable no inicializada:
 ```bash
 python main.py tests/error_sem4.txt
 ```
-
-### 5. Probar detección de división por cero con constante (Guía Semana 6):
-```bash
-python main.py tests/error_sem5.txt
+Salida:
+```text
+=== ERRORES SEMÁNTICOS ===
+  [Error Semántico, línea 4] Variable 'a' utilizada sin haber sido inicializada
 ```
 
-### 6. Probar advertencia de variable no usada:
+### 4. Advertencia de variable no usada:
 ```bash
 python main.py tests/warning1.txt
+```
+Salida:
+```text
+Análisis semántico: OK
+
+=== ADVERTENCIAS ===
+  [Línea 2] Variable 'y' fue declarada pero nunca utilizada
 ```
