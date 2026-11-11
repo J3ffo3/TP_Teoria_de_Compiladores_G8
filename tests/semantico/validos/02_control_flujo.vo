@@ -1,0 +1,9 @@
+// espera: OK
+var energiaAcumulada: energia<KWH> = 0 KWH;
+para dia desde 1 hasta 7 {
+    var consumoDiario: potencia<KW> = 5 KW;
+    energiaAcumulada += consumoDiario * 24 H;
+}
+mientras (energiaAcumulada > 0 KWH) {
+    energiaAcumulada -= 10 KWH;
+}

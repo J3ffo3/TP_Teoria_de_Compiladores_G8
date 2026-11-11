@@ -1,0 +1,4 @@
+// espera: SEM-06@2
+si (220 V) {
+    mostrar("Tension activa");
+}

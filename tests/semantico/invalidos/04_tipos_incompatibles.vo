@@ -1,0 +1,2 @@
+// espera: SEM-04@2
+var v: voltaje<V> = "Alta Tension";

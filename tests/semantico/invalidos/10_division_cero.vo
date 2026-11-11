@@ -1,0 +1,2 @@
+// espera: SEM-13@2
+var i: corriente<A> = 220 V / 0 OHM;

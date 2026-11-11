@@ -1,0 +1,19 @@
+// Programa de dimensionamiento para circuito residencial en Voltio
+const TENSION_RED: voltaje<V> = 220 V;
+const CAPACIDAD_DISYUNTOR: corriente<A> = 32 A;
+
+regla calcularCorriente(pot: potencia<W>, tens: voltaje<V>): corriente<A> {
+    retornar pot / tens;
+}
+
+var cargaTermas: potencia<W> = 4400 W;
+var cargaIluminacion: potencia<W> = 1100 W;
+var potenciaTotal: potencia<W> = cargaTermas + cargaIluminacion;
+
+var corrienteCalculada: corriente<A> = calcularCorriente(potenciaTotal, TENSION_RED);
+
+si (corrienteCalculada > CAPACIDAD_DISYUNTOR) {
+    mostrar("Alerta: Riesgo de sobrecarga en alimentador principal");
+} sino {
+    mostrar("Estado normal. Corriente de diseno:", corrienteCalculada);
+}

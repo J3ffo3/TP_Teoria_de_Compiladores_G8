@@ -1,0 +1,10 @@
+const TENSION_MAXIMA: voltaje<V> = 250 V;
+var corrienteLinea: corriente<A> = 15 A;
+var potenciaTablero: potencia<W> = 3000 W;
+
+para circuito desde 1 hasta 5 {
+    TENSION_MAXIMA = 220 V;
+    var cargaTotal: potencia<W> = potenciaTablero + corrienteLinea;
+    mostrar(voltajeInexistente);
+    var circuito: entero = 1;
+}

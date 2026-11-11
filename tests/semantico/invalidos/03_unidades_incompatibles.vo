@@ -1,0 +1,3 @@
+// espera: SEM-03@3
+var v: voltaje<V> = 220 V;
+var sumaInvalida: voltaje<V> = v + 15 A;

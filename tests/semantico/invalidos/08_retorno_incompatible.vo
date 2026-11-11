@@ -1,0 +1,4 @@
+// espera: SEM-08@3
+regla medir(): voltaje<V> {
+    retornar 15 A;
+}

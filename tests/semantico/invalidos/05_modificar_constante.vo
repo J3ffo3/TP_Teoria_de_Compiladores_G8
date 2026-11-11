@@ -1,0 +1,3 @@
+// espera: SEM-05@3
+const VOLTAJE_NOMINAL: voltaje<V> = 220 V;
+VOLTAJE_NOMINAL = 230 V;

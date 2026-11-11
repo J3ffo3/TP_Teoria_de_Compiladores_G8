@@ -1,0 +1,12 @@
+var tensionRed: voltaje<V> = 220 V;
+var cargaResistiva: potencia<W> = 4400 W;
+var cargaIluminacion: potencia<W> = 1100 W;
+
+var potenciaTotal: potencia<W> = cargaResistiva + cargaIluminacion;
+var corrienteLinea: corriente<A> = potenciaTotal / tensionRed;
+
+si (corrienteLinea > 32 A) {
+    mostrar("Alerta: Sobrecarga en alimentador principal");
+} sino {
+    mostrar("Corriente de diseno:", corrienteLinea);
+}

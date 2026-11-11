@@ -1,0 +1,3 @@
+// espera: SEM-02@3
+var corrienteFase: corriente<A> = 10 A;
+var corrienteFase: corriente<A> = 20 A;

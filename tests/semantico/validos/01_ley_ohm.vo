@@ -1,0 +1,6 @@
+// espera: OK
+const TENSION: voltaje<V> = 220 V;
+const RESISTENCIA_CARGA: resistencia<OHM> = 44 OHM;
+var corrienteLinea: corriente<A> = TENSION / RESISTENCIA_CARGA;
+var potenciaConsumo: potencia<W> = TENSION * corrienteLinea;
+mostrar("Corriente:", corrienteLinea, "Potencia:", potenciaConsumo);

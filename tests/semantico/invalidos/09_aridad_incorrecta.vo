@@ -1,0 +1,5 @@
+// espera: SEM-09@5
+regla calcularPotencia(v: voltaje<V>, i: corriente<A>): potencia<W> {
+    retornar v * i;
+}
+var p: potencia<W> = calcularPotencia(220 V);
