@@ -1,3 +1,0 @@
-// Error Semántico 3: Incompatibilidad de tipos en asignación
-var total : int;
-total := "Hola Mundo";

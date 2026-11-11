@@ -1,6 +1,0 @@
-// Advertencia: Variable declarada pero nunca usada
-var x : int;
-var y : int;
-x := 10;
-print(x);
-// 'y' nunca fue usada

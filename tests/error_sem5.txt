@@ -1,3 +1,0 @@
-// Error Semántico 5: Validación de división por cero con constantes (Guía Semana 6)
-var x : int;
-x := 10 / 0;

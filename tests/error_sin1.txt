@@ -1,3 +1,0 @@
-// Error Sintáctico: falta punto y coma y sintaxis incompleta
-var x : int
-x := 10;
